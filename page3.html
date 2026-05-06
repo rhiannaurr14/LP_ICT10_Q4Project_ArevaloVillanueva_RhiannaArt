@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery – 10-Emerald</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <style>
+    :root {
+      --emerald: #10b981;
+      --emerald-dark: #059669;
+      --emerald-glow: rgba(16,185,129,0.15);
+      --navy: #0a0f1e;
+      --navy-mid: #111827;
+      --navy-light: #1f2937;
+      --border: rgba(16,185,129,0.2);
+      --text: #f0fdf4;
+      --muted: #6b7280;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      background: rgba(10,15,30,0.95);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--emerald);
+      letter-spacing: 0.05em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--emerald); }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse, var(--emerald-glow), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+    .hero p { color: var(--muted); font-size: 0.95rem; }
+
+    .gallery-section {
+      max-width: 1100px;
+      margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+    }
+
+    /* Python-rendered gallery will inject here */
+    #gallery-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .photo-card {
+      background: var(--navy-mid);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s;
+      animation: fadeIn 0.4s ease both;
+    }
+    .photo-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--emerald);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .photo-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-caption {
+      padding: 1rem 1.25rem 1.25rem;
+    }
+    .photo-caption h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+    .photo-caption p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .photo-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--emerald);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .loading-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">10-Emerald</div>
+  <ul class="nav-links">
+    <li><a href="index.html">Classmates</a></li>
+    <li><a href="page2.html">Attendance</a></li>
+    <li><a href="page3.html" class="active">Gallery</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">SY 2025–2026</div>
+  <h1>Highlights of Our Journey</h1>
+  <p>Memories from 10-Emerald's school year</p>
+</div>
+
+<div class="gallery-section">
+  <div id="gallery-container">
+    <div class="loading-state">Loading gallery...</div>
+  </div>
+</div>
+
+<footer>© 2025–2026 10-Emerald. All rights reserved.</footer>
+
+<script type="py">
+from pyscript import document
+
+class Photo:
+    def __init__(self, src, title, description, tag):
+        self.src         = src
+        self.title       = title
+        self.description = description
+        self.tag         = tag
+
+    def render_card(self, delay_ms=0):
+        return f"""
+        <div class="photo-card" style="animation-delay:{delay_ms}ms">
+            <img src="{self.src}" alt="{self.title}" loading="lazy"/>
+            <div class="photo-caption">
+                <span class="photo-tag">{self.tag}</span>
+                <h3>{self.title}</h3>
+                <p>{self.description}</p>
+            </div>
+        </div>
+        """
+
+    def get_summary(self):
+        return f"{self.title} ({self.tag}): {self.description}"
+
+
+def render_gallery(photos):
+    container  = document.getElementById("gallery-container")
+    html_output = ""
+
+    for i, photo in enumerate(photos):
+        if photo.src and photo.title:
+            delay = i * 80
+            html_output += photo.render_card(delay_ms=delay)
+
+    if html_output == "":
+        container.innerHTML = "<p style='color:#6b7280;text-align:center;'>No photos to display.</p>"
+    else:
+        container.innerHTML = html_output
+
+
+RAW = "https://raw.githubusercontent.com/rhiannaurr14/LP_ICT10_Q4Project_ArevaloVillanueva_RhiannaArt/main/"
+
+photos = [
+    Photo(
+        src=RAW + "CAT_Graduation.jpg",
+        title="CAT Graduation",
+        description="10-Emerald cadets saluting proudly at the Peace Congress & CAT Graduation ceremony.",
+        tag="Milestone"
+    ),
+    Photo(
+        src=RAW + "Joint_Campout.jpg",
+        title="Joint Campout",
+        description="An unforgettable night at Teatro Botanico during the JHS Joint Campout.",
+        tag="Activity"
+    ),
+    Photo(
+        src=RAW + "First_Quarter.jpg",
+        title="First Quarter",
+        description="10-Emerald's very first class photo — the beginning of a memorable school year.",
+        tag="Class Photo"
+    ),
+    Photo(
+        src=RAW + "IMG_8662.JPG",
+        title="Class Memory",
+        description="A cherished moment shared by 10-Emerald throughout the school year.",
+        tag="Memory"
+    ),
+    Photo(
+        src=RAW + "WIN_20251023_08_43_15_Pro.jpg",
+        title="School Activity",
+        description="10-Emerald students captured during one of their memorable school activities.",
+        tag="Activity"
+    ),
+    Photo(
+        src=RAW + "Image_20251218_193155_345.webp",
+        title="Class Event",
+        description="Another highlight from 10-Emerald's eventful and fun-filled school year.",
+        tag="Event"
+    ),
+]
+
+render_gallery(photos)
+</script>
+
+</body>
+</html>

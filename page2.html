@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance – 10-Emerald</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css"/>
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <style>
+    :root {
+      --emerald: #10b981;
+      --emerald-dark: #059669;
+      --emerald-glow: rgba(16,185,129,0.15);
+      --navy: #0a0f1e;
+      --navy-mid: #111827;
+      --navy-light: #1f2937;
+      --border: rgba(16,185,129,0.2);
+      --text: #f0fdf4;
+      --muted: #6b7280;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      background: rgba(10,15,30,0.95);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--emerald);
+      letter-spacing: 0.05em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--emerald); }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse, var(--emerald-glow), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+    .hero p { color: var(--muted); font-size: 0.95rem; }
+
+    .main {
+      max-width: 900px;
+      margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .card {
+      background: var(--navy-mid);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+    .card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--emerald);
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 1rem;
+    }
+    select:focus, input:focus { border-color: var(--emerald); }
+    select option { background: var(--navy-mid); }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--emerald);
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    button:hover { background: var(--emerald-dark); transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--emerald);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--emerald-glow); transform: none; }
+
+    .success-msg {
+      font-size: 0.8rem;
+      color: var(--emerald);
+      text-align: center;
+      min-height: 1.2rem;
+      margin-top: 0.25rem;
+    }
+
+    .graph-card {
+      background: var(--navy-mid);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      min-height: 350px;
+      display: flex;
+      flex-direction: column;
+    }
+    .graph-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--emerald);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    #graph-output {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #graph-output img { max-width: 100%; border-radius: 8px; }
+    .placeholder-text {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    py-config { display: none; }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 640px) {
+      .main { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <py-config>
+    packages = ["numpy", "matplotlib"]
+  </py-config>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">10-Emerald</div>
+  <ul class="nav-links">
+    <li><a href="index.html">Classmates</a></li>
+    <li><a href="page2.html" class="active">Attendance</a></li>
+    <li><a href="page3.html">Gallery</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">SY 2025–2026</div>
+  <h1>Attendance Tracker</h1>
+  <p>Log and visualize weekly absences</p>
+</div>
+
+<div class="main">
+  <div class="card">
+    <h2>Log Absences</h2>
+    <label for="day-select">Select Day</label>
+    <select id="day-select">
+      <option value="Monday">Monday</option>
+      <option value="Tuesday">Tuesday</option>
+      <option value="Wednesday">Wednesday</option>
+      <option value="Thursday">Thursday</option>
+      <option value="Friday">Friday</option>
+    </select>
+
+    <label for="absence-count">Absences</label>
+    <input type="number" id="absence-count" min="0" max="50" placeholder="0"/>
+
+    <button id="submit-btn">Submit</button>
+    <button class="btn-secondary" id="reset-btn">Reset Data</button>
+    <div class="success-msg" id="success-msg"></div>
+
+    
+    <div style="margin-top:1.25rem;border-top:1px solid rgba(16,185,129,0.15);padding-top:1rem;">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6b7280;margin-bottom:0.5rem;">Weekly Summary</div>
+      <div id="summary-table"></div>
+    </div>
+  </div>
+
+  <div class="graph-card">
+    <h2>Weekly Attendance (Absences)</h2>
+    <div id="graph-output">
+      <p class="placeholder-text">Submit absences to generate the graph.</p>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025–2026 10-Emerald. All rights reserved.</footer>
+
+<script type="py">
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import base64
+import io
+from pyscript import document
+
+class AttendanceTracker:
+    def __init__(self):
+        self.data = {
+            "Monday":    0,
+            "Tuesday":   0,
+            "Wednesday": 0,
+            "Thursday":  0,
+            "Friday":    0
+        }
+        self.days_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+
+    def update(self, day, count):
+        self.data[day] = count
+
+    def reset(self):
+        for day in self.days_order:
+            self.data[day] = 0
+
+    def get_values(self):
+        return np.array([self.data[day] for day in self.days_order])
+
+    def get_total(self):
+        return int(np.sum(self.get_values()))
+
+    def generate_graph(self):
+        absences = self.get_values()
+        days     = np.array(self.days_order)
+
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+        fig.patch.set_facecolor('#111827')
+        ax.set_facecolor('#111827')
+
+        ax.plot(
+            days, absences,
+            color='#10b981', linewidth=2.5,
+            marker='o', markersize=7,
+            markerfacecolor='#10b981',
+            markeredgecolor='#0a0f1e',
+            markeredgewidth=2
+        )
+
+        ax.fill_between(range(len(days)), absences, color='#10b981', alpha=0.12)
+
+        ax.set_xticks(range(len(days)))
+        ax.set_xticklabels(days, color='#9ca3af', fontsize=9)
+        ax.set_ylabel("Number of Absences", color='#9ca3af', fontsize=9)
+        ax.set_xlabel("Day",                color='#9ca3af', fontsize=9)
+        ax.set_title("Weekly Attendance (Absences)",
+                     color='#f0fdf4', fontsize=11, fontweight='bold', pad=12)
+
+        ax.tick_params(colors='#9ca3af')
+        ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        for spine in ax.spines.values():
+            spine.set_edgecolor('#1f2937')
+
+        ax.grid(axis='y', color='#1f2937', linewidth=0.8)
+
+        plt.tight_layout()
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=120,
+                    bbox_inches='tight', facecolor='#111827')
+        buf.seek(0)
+        img_b64 = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close()
+        return img_b64
+
+    def render_summary(self):
+        rows = ""
+        for day in self.days_order:
+            count = self.data[day]
+            color = "#10b981" if count > 0 else "#6b7280"
+            rows += f"""
+                <tr>
+                    <td style="padding:0.4rem 0.75rem;color:#f0fdf4;">{day}</td>
+                    <td style="padding:0.4rem 0.75rem;color:{color};font-weight:600;text-align:right;">{count}</td>
+                </tr>
+            """
+        total = self.get_total()
+        return f"""
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(16,185,129,0.2);">
+                        <th style="padding:0.4rem 0.75rem;color:#6b7280;text-align:left;font-weight:600;">Day</th>
+                        <th style="padding:0.4rem 0.75rem;color:#6b7280;text-align:right;font-weight:600;">Absences</th>
+                    </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+                <tfoot>
+                    <tr style="border-top:1px solid rgba(16,185,129,0.2);">
+                        <td style="padding:0.5rem 0.75rem;color:#f0fdf4;font-weight:700;">Total</td>
+                        <td style="padding:0.5rem 0.75rem;color:#10b981;font-weight:700;text-align:right;">{total}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        """
+
+
+tracker = AttendanceTracker()
+
+
+def render_graph():
+    img_b64 = tracker.generate_graph()
+    output  = document.getElementById("graph-output")
+    output.innerHTML = f'<img src="data:image/png;base64,{img_b64}" alt="Weekly Attendance Graph"/>'
+
+
+def render_summary():
+    summary_el = document.getElementById("summary-table")
+    if summary_el:
+        summary_el.innerHTML = tracker.render_summary()
+
+
+def submit_attendance(event):
+    day       = document.getElementById("day-select").value
+    count_val = document.getElementById("absence-count").value
+    msg       = document.getElementById("success-msg")
+
+    if count_val == "":
+        msg.textContent   = "Please enter a number."
+        msg.style.color   = "#ef4444"
+        return
+
+    count = int(count_val)
+
+    if count < 0:
+        msg.textContent = "Absences cannot be negative."
+        msg.style.color = "#ef4444"
+        return
+
+    tracker.update(day, count)
+    msg.textContent = f"✓ {day}: {count} absence(s) saved."
+    msg.style.color = "#10b981"
+    render_graph()
+    render_summary()
+
+
+def reset_attendance(event):
+    tracker.reset()
+    msg    = document.getElementById("success-msg")
+    output = document.getElementById("graph-output")
+
+    msg.textContent   = "All data has been reset."
+    msg.style.color   = "#6b7280"
+    output.innerHTML  = '<p class="placeholder-text">Submit absences to generate the graph.</p>'
+    render_summary()
+
+
+document.getElementById("submit-btn").addEventListener("click", submit_attendance)
+document.getElementById("reset-btn").addEventListener("click", reset_attendance)
+
+render_summary()
+</script>
+
+</body>
+</html>
