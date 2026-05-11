@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>10-Emerald</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <style>
+    /* ── CSS VARIABLES ── */
+    :root {
+      --blue: #2980d9;
+      --blue-dark: #1a6fc4;
+      --blue-light: #e8f2fc;
+      --blue-glow: rgba(41,128,217,0.15);
+      --navy: #1a2340;
+      --navy-dark: #111827;
+      --purple-light: #e8e6f0;
+      --bg: #f4f6fa;
+      --surface: #ffffff;
+      --border: #dde3ee;
+      --border-blue: rgba(41,128,217,0.3);
+      --text: #1e2a3a;
+      --text-mid: #3d4f6b;
+      --muted: #8a96a8;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    /* ── GLOBAL STYLES ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* ── NAVIGATION ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 60px;
+      background: var(--navy);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      animation: slideDown 0.5s ease-out;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .nav-brand {
+      font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem;
+      color: #fff; letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.25s ease;
+    }
+    .nav-brand span { color: var(--blue); }
+    .nav-brand:hover { opacity: 0.85; }
+    .nav-links { display: flex; gap: 0.25rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: rgba(255,255,255,0.6); font-size: 0.88rem; font-weight: 500;
+      transition: all 0.25s ease;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+    }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-links a.active { color: #fff; background: var(--blue); }
+    /* ── HERO SECTION ── */
+    .hero {
+      text-align: center; padding: 3.5rem 2rem 2.5rem;
+      position: relative; overflow: hidden;
+      animation: fadeIn 0.7s ease-out;
+      background: linear-gradient(160deg, #fff 0%, var(--purple-light) 60%, var(--blue-light) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .hero::before {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: rgba(41,128,217,0.07);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -60px; left: -60px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: rgba(100,80,180,0.06);
+      pointer-events: none;
+    }
+    .hero-label {
+      font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 0.6rem; font-weight: 700;
+      animation: slideUp 0.7s ease-out 0.1s backwards;
+    }
+    .hero h1 {
+      font-family: 'Inter', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800;
+      line-height: 1.15; margin-bottom: 0.6rem;
+      color: var(--navy);
+      animation: slideUp 0.7s ease-out 0.2s backwards;
+    }
+    .hero p {
+      color: var(--text-mid); font-size: 0.95rem;
+      animation: slideUp 0.7s ease-out 0.3s backwards;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* ── FORM SECTION ── */
+    .form-section { max-width: 680px; margin: 2rem auto; padding: 0 1.5rem; animation: slideUp 0.7s ease-out 0.4s backwards; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: var(--border-blue);
+      box-shadow: 0 8px 28px rgba(41,128,217,0.1);
+      transform: translateY(-2px);
+    }
+    .card h2 {
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700;
+      color: var(--navy); margin-bottom: 1.25rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      position: relative; padding-bottom: 0.9rem;
+    }
+    .card h2::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 36px; height: 3px;
+      background: linear-gradient(90deg, var(--blue), transparent);
+      border-radius: 2px;
+    }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .input-row.single { grid-template-columns: 1fr; }
+    input {
+      width: 100%; padding: 0.65rem 1rem;
+      background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;
+      outline: none; transition: all 0.25s ease;
+    }
+    input::placeholder { color: var(--muted); }
+    input:hover { border-color: #b0bcce; background: #fff; }
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(41,128,217,0.12);
+      background: #fff;
+    }
+    .btn-row { display: flex; gap: 0.75rem; margin-top: 1rem; }
+    button {
+      flex: 1; padding: 0.7rem; border: none; border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.88rem;
+      cursor: pointer; transition: all 0.25s ease;
+      position: relative; overflow: hidden;
+    }
+    button::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 0; height: 0; border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s, height 0.5s;
+    }
+    button:active::before { width: 280px; height: 280px; }
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      box-shadow: 0 3px 10px rgba(41,128,217,0.35);
+    }
+    .btn-primary:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(41,128,217,0.4);
+    }
+    .btn-secondary {
+      background: transparent; color: var(--blue); border: 1.5px solid var(--blue);
+    }
+    .btn-secondary:hover {
+      background: var(--blue-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(41,128,217,0.15);
+    }
+    .error-msg { font-size: 0.8rem; color: #e53e3e; min-height: 1.2rem; margin-top: 0.4rem; }
+    /* ── CLASSMATE LIST SECTION ── */
+    .list-section {
+      max-width: 680px; margin: 0 auto 4rem; padding: 0 1.5rem;
+      animation: slideUp 0.7s ease-out 0.5s backwards;
+    }
+    #classmate-list { display: flex; flex-direction: column; gap: 0.55rem; }
+    .classmate-item {
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;
+      animation: slideIn 0.35s ease backwards;
+      transition: all 0.25s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .classmate-item:nth-child(1) { animation-delay: 0.05s; }
+    .classmate-item:nth-child(2) { animation-delay: 0.1s; }
+    .classmate-item:nth-child(3) { animation-delay: 0.15s; }
+    .classmate-item:nth-child(n+4) { animation-delay: 0.2s; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-16px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .classmate-item:hover {
+      border-color: var(--border-blue);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(41,128,217,0.1);
+    }
+    .classmate-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--blue-light);
+      border: 2px solid var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.85rem;
+      color: var(--blue); flex-shrink: 0;
+      transition: all 0.25s ease;
+    }
+    .classmate-item:hover .classmate-avatar {
+      transform: scale(1.12);
+      box-shadow: 0 0 12px rgba(41,128,217,0.3);
+    }
+    .classmate-info { flex: 1; }
+    .classmate-name { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+    .classmate-detail { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+    .empty-state {
+      text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.9rem;
+      background: var(--surface); border: 1px dashed var(--border); border-radius: 10px;
+      transition: color 0.3s;
+    }
+    .empty-state:hover { color: var(--text-mid); }
+    .count-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: var(--blue-light);
+      border: 1.5px solid var(--border-blue);
+      border-radius: 999px; padding: 0.35rem 1rem;
+      font-size: 0.78rem; color: var(--blue); font-weight: 700; margin-bottom: 0.9rem;
+      animation: slideUp 0.5s ease-out 0.2s backwards;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+    }
+    .count-badge:hover {
+      background: #d4e8f8;
+      box-shadow: 0 3px 12px rgba(41,128,217,0.2);
+      transform: translateY(-1px);
+    }
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 0.8rem;
+      background: var(--surface);
+    }
+  </style>
+</head>
+<body>
+<!-- ======== HEADER ======== -->
+<nav>
+  <div class="nav-brand">10-<span>Emerald</span></div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Classmates</a></li>
+    <li><a href="page2.html">Attendance</a></li>
+    <li><a href="page3.html">Gallery</a></li>
+  </ul>
+</nav>
+<!-- ======== HERO ======== -->
+<div class="hero">
+  <div class="hero-label">SY 2025–2026</div>
+  <h1>Grade 10 Classmates</h1>
+  <p>Add and view your classmates easily</p>
+</div>
+<!-- ======== ADD CLASSMATE FORM ======== -->
+<div class="form-section">
+  <div class="card">
+    <h2>Add a Classmate</h2>
+    <div class="input-row">
+      <input type="text" id="input-name"    placeholder="Full Name" />
+      <input type="text" id="input-section" placeholder="Section (e.g. Emerald)" />
+    </div>
+    <div class="input-row single">
+      <input type="text" id="input-subject" placeholder="Favorite Subject" />
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary"   id="btn-add">Add Classmate</button>
+      <button class="btn-secondary" id="btn-show">Show List</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+</div>
+<!-- ======== CLASSMATE LIST ======== -->
+<div class="list-section">
+  <div id="list-header" style="display:none; margin-bottom:0.75rem;">
+    <span class="count-badge">
+      <span>●</span>
+      <span id="count-text">0 classmates</span>
+    </span>
+  </div>
+  <div id="classmate-list">
+    <div class="empty-state">No classmates added yet. Add one above!</div>
+  </div>
+</div>
+<!-- ======== FOOTER ======== -->
+<footer>© 2025–2026 O.B. Montessori. All rights reserved.</footer>
+
+<!-- ======== LOCAL STORAGE HELPERS ======== -->
+<script>
+  function ls_get(key) { return localStorage.getItem(key) || ""; }
+  function ls_set(key, val) { localStorage.setItem(key, val); }
+</script>
+<!-- ======== CLASSMATE MANAGER ======== -->
+<script type="py">
+import json
+from pyscript import document, window
+from pyodide.ffi import create_proxy
+
+class Classmate:
+    def __init__(self, name, section, favorite_subject):
+        self.name             = name
+        self.section          = section
+        self.favorite_subject = favorite_subject
+
+    def get_greeting(self):
+        return f"Hi! I am {self.name} from {self.section}. My favorite subject is {self.favorite_subject}."
+
+    def get_initials(self):
+        parts    = self.name.split(" ")
+        initials = ""
+        for part in parts[:2]:
+            if part:
+                initials += part[0].upper()
+        return initials
+
+    def to_dict(self):
+        return {
+            "name":             self.name,
+            "section":          self.section,
+            "favorite_subject": self.favorite_subject
+        }
+
+    def render_card(self):
+        return f"""
+        <div class="classmate-item">
+            <div class="classmate-avatar">{self.get_initials()}</div>
+            <div class="classmate-info">
+                <div class="classmate-name">{self.name}</div>
+                <div class="classmate-detail">{self.get_greeting()}</div>
+            </div>
+        </div>
+        """
+
+
+classmates   = []
+list_visible = False
+STORAGE_KEY  = "emerald_classmates"
+
+
+def load_from_storage():
+    raw = window.ls_get(STORAGE_KEY)
+    if raw:
+        entries = json.loads(raw)
+        for entry in entries:
+            c = Classmate(
+                entry["name"],
+                entry["section"],
+                entry["favorite_subject"]
+            )
+            classmates.append(c)
+
+
+def save_to_storage():
+    data = [c.to_dict() for c in classmates]
+    window.ls_set(STORAGE_KEY, json.dumps(data))
+
+
+def render_list():
+    container  = document.getElementById("classmate-list")
+    header     = document.getElementById("list-header")
+    count_text = document.getElementById("count-text")
+
+    if len(classmates) == 0:
+        container.innerHTML  = '<div class="empty-state">No classmates added yet. Add one above!</div>'
+        header.style.display = "none"
+        return
+
+    count = len(classmates)
+    label = "classmate" if count == 1 else "classmates"
+    count_text.textContent   = f"{count} {label}"
+    header.style.display     = "block"
+
+    html_output = ""
+    for classmate in classmates:
+        html_output += classmate.render_card()
+
+    container.innerHTML = html_output
+
+
+def add_classmate(event):
+    name    = document.getElementById("input-name").value.strip()
+    section = document.getElementById("input-section").value.strip()
+    subject = document.getElementById("input-subject").value.strip()
+    error   = document.getElementById("error-msg")
+
+    if not name or not section or not subject:
+        error.textContent = "Please fill in all fields."
+        return
+
+    error.textContent = ""
+
+    new_classmate = Classmate(name, section, subject)
+    classmates.append(new_classmate)
+    save_to_storage()
+
+    document.getElementById("input-name").value    = ""
+    document.getElementById("input-section").value = ""
+    document.getElementById("input-subject").value = ""
+
+    if list_visible:
+        render_list()
+
+
+def show_list(event):
+    global list_visible
+    list_visible = True
+    render_list()
+
+
+document.getElementById("btn-add").addEventListener("click",  create_proxy(add_classmate))
+document.getElementById("btn-show").addEventListener("click", create_proxy(show_list))
+
+load_from_storage()
+</script>
+<!-- ======== END ======== -->
+</body>
+</html>

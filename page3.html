@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery – 10-Emerald</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <style>
+    /* ── CSS VARIABLES ── */
+    :root {
+      --blue: #2980d9;
+      --blue-dark: #1a6fc4;
+      --blue-light: #e8f2fc;
+      --navy: #1a2340;
+      --navy-dark: #101828;
+      --purple-light: #e8e6f0;
+      --bg: #f4f6fa;
+      --surface: #ffffff;
+      --border: #dde3ee;
+      --border-blue: rgba(41,128,217,0.3);
+      --text: #1e2a3a;
+      --text-mid: #3d4f6b;
+      --muted: #8a96a8;
+    }
+    /* ── GLOBAL STYLES ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { overflow-y: scroll; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    /* ── NAVIGATION ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem; height: 60px;
+      background: rgba(26,35,64,0.0);
+      border-bottom: 1px solid rgba(255,255,255,0);
+      backdrop-filter: blur(0px);
+      transition: background 0.5s ease, border-color 0.5s ease, backdrop-filter 0.5s ease;
+    }
+    nav.scrolled {
+      background: rgba(26,35,64,0.97);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand {
+      font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem;
+      color: #fff; letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.25s ease;
+    }
+    .nav-brand span { color: var(--blue); }
+    .nav-brand:hover { opacity: 0.85; }
+    .nav-links { display: flex; gap: 0.25rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: rgba(255,255,255,0.75);
+      font-size: 0.88rem; font-weight: 500;
+      padding: 0.45rem 1rem; border-radius: 6px;
+      transition: all 0.25s ease; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 1rem; right: 1rem;
+      height: 2px; background: var(--blue);
+      width: 0; transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after, .nav-links a.active::after { width: calc(100% - 2rem); }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-links a.active { color: #fff; }
+    /* ── HERO SLIDE ── */
+    .hero-slide {
+      height: 100vh; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(160deg, var(--navy-dark) 0%, #1a2340 50%, #0d1b33 100%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(41,128,217,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41,128,217,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    }
+    .hero-glow {
+      position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(41,128,217,0.15) 0%, transparent 65%);
+      pointer-events: none;
+      animation: pulse 5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+      50% { opacity: 0.7; transform: translateX(-50%) scale(1.08); }
+    }
+    .hero-content {
+      position: relative; z-index: 2; text-align: center; padding: 2rem;
+    }
+    .hero-label {
+      font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 1rem; font-weight: 700;
+      opacity: 0; transform: translateY(16px);
+      animation: revealUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+    }
+    .hero-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800; line-height: 1.05; margin-bottom: 1rem;
+      color: #fff;
+      opacity: 0; transform: translateY(20px);
+      animation: revealUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.35s forwards;
+    }
+    .hero-title span { color: var(--blue); }
+    .hero-sub {
+      color: rgba(255,255,255,0.6); font-size: 1rem; line-height: 1.7;
+      opacity: 0; transform: translateY(16px);
+      animation: revealUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.5s forwards;
+    }
+    .hero-scroll-hint {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; animation: revealUp 1s ease 1.1s forwards;
+      cursor: default;
+      transition: opacity 0.3s ease;
+    }
+    .hero-scroll-hint:hover { opacity: 0.8 !important; }
+    .hero-scroll-hint span {
+      font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, var(--blue), transparent);
+      animation: scrollPulse 2s ease-in-out 1.5s infinite;
+    }
+    @keyframes scrollPulse {
+      0% { transform: scaleY(0); transform-origin: top; opacity: 1; }
+      50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+    }
+    /* ── PHOTO SLIDES ── */
+    .photo-slide {
+      height: 100vh; position: relative;
+      overflow: hidden; display: flex; align-items: flex-end;
+    }
+    .photo-slide .parallax-bg {
+      position: absolute; inset: -15%;
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+      will-change: transform; transition: transform 0.1s linear;
+      cursor: zoom-in;
+    }
+    .photo-slide .slide-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,15,30,0.1) 0%,
+        rgba(10,15,30,0.05) 30%,
+        rgba(10,15,30,0.55) 65%,
+        rgba(10,15,30,0.97) 100%
+      );
+      cursor: zoom-in;
+    }
+    .photo-slide .slide-content {
+      position: relative; z-index: 2;
+      width: 100%; max-width: 760px; margin: 0 auto;
+      padding: 0 2.5rem 5rem;
+      transform: translateY(40px); opacity: 0;
+      transition: transform 1s cubic-bezier(0.22,1,0.36,1), opacity 0.8s ease;
+    }
+    .photo-slide.in-view .slide-content { transform: translateY(0); opacity: 1; }
+    .slide-tag {
+      display: inline-block;
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--blue); font-weight: 700;
+      padding: 0.45rem 1.1rem;
+      border: 1.5px solid rgba(41,128,217,0.6);
+      border-radius: 999px;
+      background: rgba(41,128,217,0.15);
+      backdrop-filter: blur(8px);
+      margin-bottom: 1.1rem;
+      transform: translateX(-12px); opacity: 0;
+      transition: transform 1s cubic-bezier(0.22,1,0.36,1) 0.1s,
+                  opacity 0.8s ease 0.1s,
+                  background 0.25s ease,
+                  border-color 0.25s ease;
+      cursor: default;
+    }
+    .photo-slide.in-view .slide-tag { transform: translateX(0); opacity: 1; }
+    .slide-tag:hover { background: rgba(41,128,217,0.28); border-color: rgba(41,128,217,0.85); }
+    .slide-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800; line-height: 1.1; color: #fff;
+      text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      margin-bottom: 0.9rem;
+      transform: translateY(24px); opacity: 0;
+      transition: transform 1s cubic-bezier(0.22,1,0.36,1) 0.2s, opacity 0.8s ease 0.2s;
+    }
+    .photo-slide.in-view .slide-title { transform: translateY(0); opacity: 1; }
+    .slide-desc {
+      font-size: 1rem; color: rgba(255,255,255,0.7); line-height: 1.8; max-width: 540px;
+      transform: translateY(20px); opacity: 0;
+      transition: transform 1s cubic-bezier(0.22,1,0.36,1) 0.35s, opacity 0.8s ease 0.35s;
+    }
+    .photo-slide.in-view .slide-desc { transform: translateY(0); opacity: 1; }
+
+    .slide-counter {
+      position: absolute; top: 2rem; right: 2.5rem; z-index: 3;
+      font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700;
+      color: rgba(255,255,255,0.55); letter-spacing: 0.1em;
+      opacity: 0; transform: translateX(12px);
+      transition: opacity 0.6s ease 0.6s, transform 0.6s ease 0.6s, color 0.25s ease;
+    }
+    .photo-slide.in-view .slide-counter { opacity: 1; transform: translateX(0); }
+    .photo-slide.in-view .slide-counter:hover { color: #fff; }
+
+    /* progress dots */
+    #progress-dots {
+      position: fixed; right: 1.8rem; top: 50%; transform: translateY(-50%);
+      z-index: 150; display: flex; flex-direction: column; gap: 10px;
+    }
+    .pdot {
+      width: 6px; height: 6px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      background: transparent; cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .pdot.active {
+      background: var(--blue); border-color: var(--blue);
+      transform: scale(1.4);
+      box-shadow: 0 0 10px rgba(41,128,217,0.6);
+    }
+    .pdot:hover { border-color: var(--blue); background: rgba(41,128,217,0.3); }
+    /* ── GALLERY GRID ── */
+    .grid-section {
+      padding: 6rem 2rem 6rem; position: relative;
+      background: var(--bg);
+    }
+    .grid-section::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+      opacity: 0.3;
+    }
+    .grid-header {
+      text-align: center; margin-bottom: 3rem;
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .grid-header.in-view { opacity: 1; transform: translateY(0); }
+    .grid-label {
+      font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 0.5rem; font-weight: 700;
+    }
+    .grid-title {
+      font-family: 'Inter', sans-serif; font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 800; color: var(--navy);
+    }
+    #gallery-container {
+      max-width: 1000px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 1.25rem;
+    }
+    .photo-card {
+      width: 290px; flex: 0 1 290px;
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease,
+                  border-color 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    /* ── PHOTO CARDS ── */
+    .photo-card.in-view { opacity: 1; transform: translateY(0); }
+    .photo-card:hover {
+      border-color: var(--border-blue);
+      box-shadow: 0 10px 28px rgba(41,128,217,0.14);
+      transform: translateY(-6px) !important;
+    }
+    .photo-card img {
+      width: 100%; height: 200px; object-fit: cover; display: block;
+      transition: transform 0.4s ease, filter 0.3s ease;
+    }
+    .photo-card:hover img { transform: scale(1.06); filter: brightness(1.05) saturate(1.1); }
+    .photo-caption { padding: 0.9rem 1.1rem 1.1rem; }
+    .photo-tag {
+      display: inline-block; font-size: 0.67rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--blue); font-weight: 700;
+      margin-bottom: 0.4rem; padding: 0.25rem 0.65rem;
+      background: var(--blue-light); border: 1px solid rgba(41,128,217,0.25);
+      border-radius: 999px;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .photo-card:hover .photo-tag { background: #d4e8f8; border-color: rgba(41,128,217,0.5); }
+    .photo-caption h3 {
+      font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
+      margin-bottom: 0.3rem; color: var(--text);
+      transition: color 0.25s ease;
+    }
+    .photo-card:hover .photo-caption h3 { color: var(--blue); }
+    .photo-caption p { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+
+    footer {
+      text-align: center; padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 0.8rem;
+      background: var(--surface);
+    }
+
+    @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+    /* ── LIGHTBOX MODAL ── */
+    #lightbox {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    #lightbox.open { opacity: 1; pointer-events: all; }
+    #lightbox-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(10,16,32,0.88);
+      backdrop-filter: blur(16px);
+    }
+    #lightbox-img {
+      position: relative; z-index: 2;
+      max-width: min(90vw, 1000px); max-height: 82vh;
+      width: auto; height: auto; border-radius: 10px;
+      object-fit: contain; transform: scale(0.93);
+      transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+    #lightbox.open #lightbox-img { transform: scale(1); }
+    #lightbox-info {
+      position: absolute; z-index: 3;
+      bottom: 0; left: 0; right: 0; text-align: center;
+      padding: 1.5rem 2rem 2rem;
+      background: linear-gradient(to top, rgba(10,16,32,0.85) 0%, transparent 100%);
+      transform: translateY(12px); opacity: 0;
+      transition: transform 0.5s cubic-bezier(0.22,1,0.36,1) 0.15s, opacity 0.4s ease 0.15s;
+    }
+    #lightbox.open #lightbox-info { transform: translateY(0); opacity: 1; }
+    #lightbox-info .lb-tag {
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--blue); font-weight: 700; padding: 0.35rem 0.9rem;
+      border: 1.5px solid rgba(41,128,217,0.5); border-radius: 999px;
+      background: rgba(41,128,217,0.12); display: inline-block; margin-bottom: 0.6rem;
+    }
+    #lightbox-info .lb-title {
+      font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 800;
+      color: #fff; margin-bottom: 0.4rem;
+    }
+    #lightbox-info .lb-desc { font-size: 0.9rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
+    #lightbox-close {
+      position: absolute; top: 1.5rem; right: 1.5rem; z-index: 4;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    #lightbox-close:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+  </style>
+</head>
+<body>
+<!-- ======== HEADER ======== -->
+<nav id="main-nav">
+  <div class="nav-brand">10-<span>Emerald</span></div>
+  <ul class="nav-links">
+    <li><a href="index.html">Classmates</a></li>
+    <li><a href="page2.html">Attendance</a></li>
+    <li><a href="page3.html" class="active">Gallery</a></li>
+  </ul>
+</nav>
+<!-- ======== PROGRESS INDICATOR ======== -->
+<div id="progress-dots"></div>
+<!-- ======== HERO SECTION ======== -->
+<section class="hero-slide" id="slide-0">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-label">SY 2025–2026</div>
+    <h1 class="hero-title">Highlights of <span>Our Journey</span></h1>
+    <p class="hero-sub">Memories from 10-Emerald's school year</p>
+  </div>
+  <div class="hero-scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+<!-- ======== PHOTO SLIDES ======== -->
+<div id="slides-container"></div>
+<!-- ======== GALLERY GRID ======== -->
+<section class="grid-section" id="grid-section">
+  <div class="grid-header" id="grid-header">
+    <div class="grid-label">All photos</div>
+    <h2 class="grid-title">Complete Gallery</h2>
+  </div>
+  <div id="gallery-container">
+    <div style="color:var(--muted);font-size:0.9rem;padding:3rem;">Loading gallery...</div>
+  </div>
+  <footer>© 2025–2026 O.B. Montessori. All rights reserved.</footer>
+</section>
+
+<script>
+  const nav = document.getElementById('main-nav');
+  let currentIdx = 0;
+  let isScrolling = false;
+
+  const allSlides = () => {
+    const sections = [document.getElementById('slide-0')];
+    document.querySelectorAll('.photo-slide').forEach(s => sections.push(s));
+    return sections;
+  };
+
+  function goToSlide(idx) {
+    const slides = allSlides();
+    if (idx < 0 || idx >= slides.length || isScrolling) return;
+    isScrolling = true;
+    currentIdx = idx;
+    const target = slides[idx].getBoundingClientRect().top + window.scrollY;
+    const start = window.scrollY;
+    const dist = target - start;
+    const duration = 780;
+    let startTime = null;
+
+    function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
+
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      const elapsed = ts - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      window.scrollTo(0, start + dist * ease(progress));
+      if (progress < 1) requestAnimationFrame(step);
+      else setTimeout(() => { isScrolling = false; }, 100);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function buildDots() {
+    const dotsEl = document.getElementById('progress-dots');
+    dotsEl.innerHTML = '';
+    allSlides().forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'pdot' + (i === 0 ? ' active' : '');
+      d.addEventListener('click', () => goToSlide(i));
+      dotsEl.appendChild(d);
+    });
+  }
+
+  let wheelAccum = 0;
+  let wheelTimer = null;
+  window.addEventListener('wheel', e => {
+    const slides = allSlides();
+    const onLastSlide = currentIdx >= slides.length - 1;
+    if (!onLastSlide || (onLastSlide && e.deltaY < 0)) {
+      e.preventDefault();
+      if (isScrolling) return;
+      wheelAccum += e.deltaY;
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { wheelAccum = 0; }, 150);
+      if (Math.abs(wheelAccum) > 40) {
+        wheelAccum = 0;
+        goToSlide(currentIdx + (e.deltaY > 0 ? 1 : -1));
+      }
+    }
+  }, { passive: false });
+
+  let touchStartY = 0;
+  window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+  window.addEventListener('touchend', e => {
+    if (lightboxOpen) return;
+    const diff = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(diff) > 40) goToSlide(currentIdx + (diff > 0 ? 1 : -1));
+  }, { passive: true });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        const slides = allSlides();
+        const idx = slides.indexOf(entry.target);
+        if (idx !== -1) {
+          currentIdx = idx;
+          document.querySelectorAll('.pdot').forEach((d, i) => {
+            d.classList.toggle('active', i === idx);
+          });
+        }
+        nav.classList.toggle('scrolled', entry.target.id !== 'slide-0');
+      }
+    });
+  }, { threshold: 0.45 });
+
+  const gridHeaderIo = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+  }, { threshold: 0.3 });
+
+  const cardIo = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in-view'), i * 80);
+        cardIo.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  function initObservers() {
+    allSlides().forEach(s => io.observe(s));
+    const gh = document.getElementById('grid-header');
+    if (gh) gridHeaderIo.observe(gh);
+  }
+
+  function initParallax() {
+    window.addEventListener('scroll', () => {
+      document.querySelectorAll('.photo-slide').forEach(slide => {
+        const rect = slide.getBoundingClientRect();
+        const ratio = rect.top / window.innerHeight;
+        const bg = slide.querySelector('.parallax-bg');
+        if (bg) bg.style.transform = `translateY(${ratio * 12}%)`;
+      });
+    }, { passive: true });
+  }
+
+  window.initGalleryObserver = function() {
+    document.querySelectorAll('.photo-card').forEach(c => cardIo.observe(c));
+  };
+
+  let lightboxOpen = false;
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  const lbTag = document.getElementById('lb-tag');
+  const lbTitle = document.getElementById('lb-title');
+  const lbDesc = document.getElementById('lb-desc');
+
+  window.openLightbox = function(src, tag, title, desc) {
+    lbImg.src = src;
+    lbTag.textContent = tag;
+    lbTitle.textContent = title;
+    lbDesc.textContent = desc;
+    lb.classList.add('open');
+    lightboxOpen = true;
+    document.body.style.overflow = 'hidden';
+  };
+
+  function closeLightbox() {
+    lb.classList.remove('open');
+    lightboxOpen = false;
+    document.body.style.overflow = '';
+    setTimeout(() => { lbImg.src = ''; }, 450);
+  }
+
+  const lbClose = document.getElementById('lightbox-close');
+  const lbBd = document.getElementById('lightbox-backdrop');
+  if (lbClose) lbClose.addEventListener('click', closeLightbox);
+  if (lbBd) lbBd.addEventListener('click', closeLightbox);
+
+  window.addEventListener('wheel', e => {
+    if (lightboxOpen) { closeLightbox(); }
+  }, { passive: true, capture: false });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && lightboxOpen) closeLightbox();
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      buildDots();
+      initObservers();
+      initParallax();
+    }, 200);
+  });
+</script>
+<!-- ======== GALLERY DATA & RENDERER ======== -->
+<script type="py">
+  from pyscript import document
+from pyodide.ffi import create_proxy
+
+class Photo:
+    def __init__(self, src, title, description, tag):
+        self.src         = src
+        self.title       = title
+        self.description = description
+        self.tag         = tag
+
+    def render_slide(self, index, total):
+        safe_desc = self.description.replace("'", "\\'")
+        safe_title = self.title.replace("'", "\\'")
+        safe_tag = self.tag.replace("'", "\\'")
+        return f"""
+        <section class="photo-slide" id="slide-{index + 1}">
+          <div class="parallax-bg" style="background-image: url('{self.src}');" onclick="openLightbox('{self.src}','{safe_tag}','{safe_title}','{safe_desc}')"></div>
+          <div class="slide-overlay" onclick="openLightbox('{self.src}','{safe_tag}','{safe_title}','{safe_desc}')"></div>
+          <div class="slide-counter">{str(index + 1).zfill(2)} / {str(total).zfill(2)}</div>
+          <div class="slide-content" onclick="event.stopPropagation()">
+            <div class="slide-tag">{self.tag}</div>
+            <h2 class="slide-title">{self.title}</h2>
+            <p class="slide-desc">{self.description}</p>
+          </div>
+        </section>
+        """
+
+    def render_card(self, delay_ms=0):
+        return f"""
+        <div class="photo-card" style="transition-delay:{delay_ms}ms">
+          <img src="{self.src}" alt="{self.title}" loading="lazy"/>
+          <div class="photo-caption">
+            <span class="photo-tag">{self.tag}</span>
+            <h3>{self.title}</h3>
+            <p>{self.description}</p>
+          </div>
+        </div>
+        """
+
+    def get_summary(self):
+        return f"{self.title} ({self.tag}): {self.description}"
+
+
+def render_all(photos):
+    slides_container = document.getElementById("slides-container")
+    gallery_container = document.getElementById("gallery-container")
+
+    total = len([p for p in photos if p.src and p.title])
+    slides_html = ""
+    gallery_html = ""
+
+    count = 0
+    for i, photo in enumerate(photos):
+        if photo.src and photo.title:
+            slides_html += photo.render_slide(count, total)
+            gallery_html += photo.render_card(delay_ms=count * 100)
+            count += 1
+
+    slides_container.innerHTML = slides_html
+    gallery_container.innerHTML = gallery_html if gallery_html else "<p style='color:#8a96a8;text-align:center;'>No photos to display.</p>"
+
+    import js
+    js.setTimeout(create_proxy(lambda: (
+        js.buildDots(),
+        js.initGalleryObserver()
+    )), 100)
+
+
+RAW = "https://raw.githubusercontent.com/rhiannaurr14/LP_ICT10_Q4Project_ArevaloVillanueva_RhiannaArt/main/"
+
+photos = [
+    Photo(
+        src=RAW + "CAT%20Graduation.jpg",
+        title="CAT Graduation",
+        description="10-Emerald cadets saluting proudly at the Peace Congress & CAT Graduation ceremony.",
+        tag="Milestone"
+    ),
+    Photo(
+        src=RAW + "Joint%20Campout.jpg",
+        title="Joint Campout",
+        description="An unforgettable night at Teatro Botanico during the JHS Joint Campout.",
+        tag="Activity"
+    ),
+    Photo(
+        src=RAW + "First%20Quarter.jpg",
+        title="First Quarter",
+        description="10-Emerald's very first class photo — the beginning of a memorable school year.",
+        tag="Class Photo"
+    ),
+    Photo(
+        src=RAW + "Teachers%20Day.jpg",
+        title="Teachers Day",
+        description="A cherished moment shared by 10-Emerald in celebration of their teachers.",
+        tag="Celebration"
+    ),
+    Photo(
+        src=RAW + "Earthquake_Drill.jpg",
+        title="Earthquake Drill",
+        description="10-Emerald students practicing safety procedures during the school earthquake drill.",
+        tag="Activity"
+    ),
+]
+
+render_all(photos)
+</script>
+<!-- ======== LIGHTBOX MODAL ======== -->
+<div id="lightbox">
+  <div id="lightbox-backdrop"></div>
+  <button id="lightbox-close" aria-label="Close">✕</button>
+  <img id="lightbox-img" src="" alt=""/>
+  <div id="lightbox-info">
+    <div class="lb-tag" id="lb-tag"></div>
+    <div class="lb-title" id="lb-title"></div>
+    <div class="lb-desc" id="lb-desc"></div>
+  </div>
+</div>
+
+</body>
+</html>

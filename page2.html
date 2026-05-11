@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance – 10-Emerald</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css"/>
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <style>
+    /* ── CSS VARIABLES ── */
+    :root {
+      --blue: #2980d9;
+      --blue-dark: #1a6fc4;
+      --blue-light: #e8f2fc;
+      --blue-glow: rgba(41,128,217,0.15);
+      --navy: #1a2340;
+      --purple-light: #e8e6f0;
+      --bg: #f4f6fa;
+      --surface: #ffffff;
+      --border: #dde3ee;
+      --border-blue: rgba(41,128,217,0.3);
+      --text: #1e2a3a;
+      --text-mid: #3d4f6b;
+      --muted: #8a96a8;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    /* ── GLOBAL STYLES ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* ── NAVIGATION ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem; height: 60px;
+      background: var(--navy);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      animation: slideDown 0.5s ease-out;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .nav-brand {
+      font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem;
+      color: #fff; letter-spacing: 0.04em;
+      cursor: pointer; transition: opacity 0.25s ease;
+    }
+    .nav-brand span { color: var(--blue); }
+    .nav-brand:hover { opacity: 0.85; }
+    .nav-links { display: flex; gap: 0.25rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: rgba(255,255,255,0.6);
+      font-size: 0.88rem; font-weight: 500;
+      padding: 0.45rem 1rem; border-radius: 6px;
+      transition: all 0.25s ease;
+    }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-links a.active { color: #fff; background: var(--blue); }
+    /* ── HERO SECTION ── */
+    .hero {
+      text-align: center; padding: 3rem 2rem 2.5rem;
+      position: relative; overflow: hidden;
+      animation: fadeIn 0.7s ease-out;
+      background: linear-gradient(160deg, #fff 0%, var(--purple-light) 60%, var(--blue-light) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .hero::before {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 280px; height: 280px; border-radius: 50%;
+      background: rgba(41,128,217,0.07); pointer-events: none;
+    }
+    .hero-label {
+      font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 0.6rem; font-weight: 700;
+      animation: slideUp 0.7s ease-out 0.1s backwards;
+    }
+    .hero h1 {
+      font-family: 'Inter', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800; line-height: 1.15; margin-bottom: 0.6rem;
+      color: var(--navy);
+      animation: slideUp 0.7s ease-out 0.2s backwards;
+    }
+    .hero p {
+      color: var(--text-mid); font-size: 0.95rem;
+      animation: slideUp 0.7s ease-out 0.3s backwards;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* ── MAIN GRID LAYOUT ── */
+    .main {
+      max-width: 1600px; margin: 2rem auto 4rem; padding: 0 1.5rem;
+      display: grid; grid-template-columns: 0.9fr 2.2fr 0.8fr; gap: 1.5rem;
+      align-items: start;
+      animation: slideUp 0.7s ease-out 0.4s backwards;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      transition: all 0.25s ease;
+    }
+    .card:hover {
+      border-color: var(--border-blue);
+      box-shadow: 0 8px 28px rgba(41,128,217,0.1);
+      transform: translateY(-2px);
+    }
+    .card h2 {
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700;
+      color: var(--navy); margin-bottom: 1.2rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      position: relative; padding-bottom: 0.9rem;
+    }
+    .card h2::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 36px; height: 3px;
+      background: linear-gradient(90deg, var(--blue), transparent);
+      border-radius: 2px;
+    }
+    label {
+      display: block; font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); margin-bottom: 0.35rem;
+    }
+    select, input[type="number"] {
+      width: 100%; padding: 0.65rem 1rem;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 0.9rem;
+      outline: none; transition: all 0.25s ease;
+      margin-bottom: 1rem;
+    }
+    select:hover, input[type="number"]:hover {
+      border-color: #b0bcce; background: #fff;
+    }
+    select:focus, input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(41,128,217,0.12);
+      background: #fff;
+    }
+    select option { background: #fff; color: var(--text); }
+    button {
+      width: 100%; padding: 0.7rem;
+      border: none; border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.88rem;
+      cursor: pointer; transition: all 0.25s ease;
+      margin-bottom: 0.5rem;
+      background: var(--blue); color: #fff;
+      box-shadow: 0 3px 10px rgba(41,128,217,0.3);
+      position: relative; overflow: hidden;
+    }
+    button::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 0; height: 0; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s, height 0.5s;
+    }
+    button:active::before { width: 280px; height: 280px; }
+    button:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(41,128,217,0.4);
+    }
+    .btn-secondary {
+      background: transparent; color: var(--blue);
+      border: 1.5px solid var(--blue); box-shadow: none;
+    }
+    .btn-secondary:hover {
+      background: var(--blue-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(41,128,217,0.15);
+    }
+    .success-msg {
+      font-size: 0.8rem; color: var(--blue);
+      text-align: center; min-height: 1.2rem; margin-top: 0.25rem;
+    }
+    /* ── GRAPH CARD STYLES ── */
+    .graph-card {
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; min-height: auto;
+      display: flex; flex-direction: column;
+      box-shadow: var(--shadow-md);
+      transition: all 0.25s ease;
+    }
+    .graph-card:hover {
+      border-color: var(--border-blue);
+      box-shadow: 0 8px 28px rgba(41,128,217,0.1);
+      transform: translateY(-2px);
+    }
+    .graph-card h2 {
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700;
+      color: var(--navy); margin-bottom: 1rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      position: relative; padding-bottom: 0.9rem;
+    }
+    .graph-card h2::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 36px; height: 3px;
+      background: linear-gradient(90deg, var(--blue), transparent);
+      border-radius: 2px;
+    }
+    #graph-output {
+      flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+      min-height: auto;
+    }
+    #bar-chart-svg { width: 100%; height: auto; display: block; overflow: visible; }
+    /* ── TABLE STYLES ── */
+    .summary-row { transition: background 0.2s ease; }
+    .summary-row:hover { background: rgba(41,128,217,0.05); cursor: default; }
+    py-config { display: none; }
+    /* ── FOOTER ── */
+
+    footer {
+      text-align: center; padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 0.8rem;
+      background: var(--surface);
+    }
+
+    @media (max-width: 640px) { .main { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<!-- ======== HEADER ======== -->
+<nav>
+  <div class="nav-brand">10-<span>Emerald</span></div>
+  <ul class="nav-links">
+    <li><a href="index.html">Classmates</a></li>
+    <li><a href="page2.html" class="active">Attendance</a></li>
+    <li><a href="page3.html">Gallery</a></li>
+  </ul>
+</nav>
+<!-- ======== HERO ======== -->
+<div class="hero">
+  <div class="hero-label">SY 2025–2026</div>
+  <h1>Attendance Tracker</h1>
+  <p>Log and visualize weekly absences</p>
+</div>
+<!-- ======== MAIN CONTENT ======== -->
+<div class="main">
+  <div class="card">
+    <h2>Log Absences</h2>
+    <label for="day-select">Select Day</label>
+    <select id="day-select">
+      <option value="Monday">Monday</option>
+      <option value="Tuesday">Tuesday</option>
+      <option value="Wednesday">Wednesday</option>
+      <option value="Thursday">Thursday</option>
+      <option value="Friday">Friday</option>
+    </select>
+
+    <label for="absence-count">Absences</label>
+    <input type="number" id="absence-count" min="0" max="50" placeholder="0"/>
+
+    <button id="submit-btn">Submit</button>
+    <button class="btn-secondary" id="reset-btn">Reset Data</button>
+    <div class="success-msg" id="success-msg"></div>
+  </div>
+
+  <div class="graph-card">
+    <h2>Weekly Attendance (Absences)</h2>
+    <div id="graph-output">
+      <svg id="bar-chart-svg" viewBox="0 0 480 240" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Weekly Summary</h2>
+    <div id="summary-table"></div>
+  </div>
+</div>
+<!-- ======== FOOTER ======== -->
+<footer>© 2025–2026 O.B. Montessori. All rights reserved.</footer>
+<!-- ======== ATTENDANCE TRACKER ======== -->
+<script type="py">
+from pyscript import document
+from pyodide.ffi import create_proxy
+import js
+# Attendance data model
+class AttendanceTracker:
+    def __init__(self):
+        self.data = {
+            "Monday":    0,
+            "Tuesday":   0,
+            "Wednesday": 0,
+            "Thursday":  0,
+            "Friday":    0
+        }
+        self.days_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+
+    def update(self, day, count):
+        self.data[day] = count
+    # Reset all data
+    def reset(self):
+        for day in self.days_order:
+            self.data[day] = 0
+
+    def get_total(self):
+        return sum(self.data[d] for d in self.days_order)
+    # Generate summary table HTML
+    def render_summary(self):
+        rows = ""
+        for day in self.days_order:
+            count = self.data[day]
+            color = "#2980d9" if count > 0 else "#8a96a8"
+            rows += f"""
+                <tr class="summary-row">
+                    <td style="padding:0.4rem 0.75rem;color:#1e2a3a;">{day}</td>
+                    <td style="padding:0.4rem 0.75rem;color:{color};font-weight:600;text-align:right;">{count}</td>
+                </tr>
+            """
+        total = self.get_total()
+        return f"""
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                <thead>
+                    <tr style="border-bottom:1px solid #dde3ee;">
+                        <th style="padding:0.4rem 0.75rem;color:#8a96a8;text-align:left;font-weight:600;">Day</th>
+                        <th style="padding:0.4rem 0.75rem;color:#8a96a8;text-align:right;font-weight:600;">Absences</th>
+                    </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+                <tfoot>
+                    <tr style="border-top:1px solid #dde3ee;">
+                        <td style="padding:0.5rem 0.75rem;color:#1e2a3a;font-weight:700;">Total</td>
+                        <td style="padding:0.5rem 0.75rem;color:#2980d9;font-weight:700;text-align:right;">{total}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        """
+
+
+tracker = AttendanceTracker()
+# Chart update
+def push_chart():
+    from pyodide.ffi import to_js
+    from js import Object
+    data_js = to_js(tracker.data, dict_converter=Object.fromEntries)
+    js.updateChart(data_js)
+# Render list update
+def render_summary():
+    summary_el = document.getElementById("summary-table")
+    if summary_el:
+        summary_el.innerHTML = tracker.render_summary()
+# Form submission handler
+def submit_attendance(event):
+    day       = document.getElementById("day-select").value
+    count_val = document.getElementById("absence-count").value
+    msg       = document.getElementById("success-msg")
+
+    if count_val == "":
+        msg.textContent = "Please enter a number."
+        msg.style.color = "#e53e3e"
+        return
+
+    count = int(count_val)
+    if count < 0:
+        msg.textContent = "Absences cannot be negative."
+        msg.style.color = "#e53e3e"
+        return
+
+    tracker.update(day, count)
+    msg.textContent = f"✓ {day}: {count} absence(s) saved."
+    msg.style.color = "#2980d9"
+    push_chart()
+    render_summary()
+# Reset handler
+def reset_attendance(event):
+    tracker.reset()
+    msg = document.getElementById("success-msg")
+    msg.textContent = "All data has been reset."
+    msg.style.color = "#8a96a8"
+    push_chart()
+    render_summary()
+# Event binding
+document.getElementById("submit-btn").addEventListener("click", create_proxy(submit_attendance))
+document.getElementById("reset-btn").addEventListener("click", create_proxy(reset_attendance))
+
+render_summary()
+push_chart()
+</script>
+<!-- ======== CHART RENDERER ======== -->
+<script>
+  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const W = 480, H = 240;
+  const PAD = { top: 28, right: 24, bottom: 48, left: 44 };
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+
+  let currentVals = [0,0,0,0,0];
+  let targetVals  = [0,0,0,0,0];
+  let animating   = false;
+  let chartBuilt  = false;
+
+  let lineEl, areaEl, dotEls = [], valEls = [], gridG;
+
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    for (const [k,v] of Object.entries(attrs)) el.setAttribute(k, v);
+    return el;
+  }
+
+  function xPos(i) { return (i / (DAYS.length - 1)) * chartW; }
+  function yPos(v, maxVal) { return chartH - (v / maxVal) * chartH; }
+
+  function pointsStr(vals, maxVal) {
+    return vals.map((v,i) => `${xPos(i)},${yPos(v,maxVal)}`).join(' ');
+  }
+
+  function areaPath(vals, maxVal) {
+    const pts = vals.map((v,i) => `${xPos(i)},${yPos(v,maxVal)}`);
+    return `M ${pts[0]} L ${pts.slice(1).join(' L ')} L ${xPos(DAYS.length-1)},${chartH} L 0,${chartH} Z`;
+  }
+
+  function niceMax(vals) {
+    const m = Math.max(...vals, 1);
+    return m <= 5 ? 5 : m <= 10 ? 10 : Math.ceil(m / 5) * 5;
+  }
+
+  function buildChart() {
+    const svg = document.getElementById('bar-chart-svg');
+    svg.innerHTML = '';
+    const g = svgEl('g', { transform: `translate(${PAD.left},${PAD.top})` });
+    svg.appendChild(g);
+
+    const defs = svgEl('defs', {});
+    const grad = svgEl('linearGradient', { id: 'lineGrad', x1:'0', y1:'0', x2:'0', y2:'1' });
+    const s1 = svgEl('stop', { offset:'0%',   'stop-color':'#2980d9', 'stop-opacity':'0.3' });
+    const s2 = svgEl('stop', { offset:'100%', 'stop-color':'#2980d9', 'stop-opacity':'0.02' });
+    grad.appendChild(s1); grad.appendChild(s2);
+    defs.appendChild(grad);
+    svg.insertBefore(defs, g);
+
+    gridG = svgEl('g', { id: 'grid-group' });
+    g.appendChild(gridG);
+
+    g.appendChild(svgEl('line', {
+      x1:0, y1:chartH, x2:chartW, y2:chartH,
+      stroke:'#dde3ee', 'stroke-width':'1.5'
+    }));
+
+    DAYS.forEach((day, i) => {
+      const lbl = svgEl('text', {
+        x: xPos(i), y: chartH + 20,
+        'text-anchor': 'middle',
+        fill: '#8a96a8',
+        'font-family': 'Inter, sans-serif',
+        'font-size': '11'
+      });
+      lbl.textContent = day.slice(0,3);
+      g.appendChild(lbl);
+    });
+
+    const yLbl = svgEl('text', {
+      x: -(chartH/2), y: -32,
+      'text-anchor': 'middle',
+      fill: '#8a96a8',
+      'font-family': 'Inter, sans-serif',
+      'font-size': '10',
+      transform: 'rotate(-90)'
+    });
+    yLbl.textContent = 'Absences';
+    g.appendChild(yLbl);
+
+    areaEl = svgEl('path', { fill: 'url(#lineGrad)', d: areaPath(currentVals, 5) });
+    g.appendChild(areaEl);
+
+    lineEl = svgEl('polyline', {
+      points: pointsStr(currentVals, 5),
+      fill: 'none', stroke: '#2980d9',
+      'stroke-width': '2.5',
+      'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+    });
+    g.appendChild(lineEl);
+
+    DAYS.forEach((day, i) => {
+      const dot = svgEl('circle', {
+        cx: xPos(i), cy: yPos(0, 5), r: '5',
+        fill: '#2980d9', stroke: '#fff', 'stroke-width': '2'
+      });
+      g.appendChild(dot);
+      dotEls.push(dot);
+
+      const val = svgEl('text', {
+        x: xPos(i), y: yPos(0,5) - 10,
+        'text-anchor': 'middle',
+        fill: '#1e2a3a',
+        'font-family': 'Inter, sans-serif',
+        'font-size': '11', 'font-weight': '700',
+        opacity: '0'
+      });
+      g.appendChild(val);
+      valEls.push(val);
+    });
+
+    redrawGrid(5);
+    chartBuilt = true;
+  }
+
+  function redrawGrid(maxVal) {
+    if (!gridG) return;
+    gridG.innerHTML = '';
+    const steps = Math.min(maxVal, 5);
+    for (let i = 0; i <= steps; i++) {
+      const v = Math.round((maxVal / steps) * i);
+      const y = yPos(v, maxVal);
+      gridG.appendChild(svgEl('line', {
+        x1: 0, y1: y, x2: chartW, y2: y,
+        stroke: i === 0 ? '#dde3ee' : '#edf0f5',
+        'stroke-width': '1',
+        'stroke-dasharray': i === 0 ? 'none' : '4 4'
+      }));
+      const lbl = svgEl('text', {
+        x: -8, y: y + 4,
+        'text-anchor': 'end',
+        fill: '#8a96a8',
+        'font-family': 'Inter, sans-serif',
+        'font-size': '10'
+      });
+      lbl.textContent = v;
+      gridG.appendChild(lbl);
+    }
+  }
+
+  function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+  function animateTo(from, to) {
+    const duration = 650;
+    let start = null;
+    const maxVal = niceMax(to);
+    redrawGrid(maxVal);
+
+    function step(ts) {
+      if (!start) start = ts;
+      const t = Math.min((ts - start) / duration, 1);
+      const e = ease(t);
+      currentVals = from.map((f,i) => f + (to[i] - f) * e);
+
+      lineEl.setAttribute('points', pointsStr(currentVals, maxVal));
+      areaEl.setAttribute('d', areaPath(currentVals, maxVal));
+      currentVals.forEach((v, i) => {
+        dotEls[i].setAttribute('cy', yPos(v, maxVal));
+        valEls[i].setAttribute('y', yPos(v, maxVal) - 10);
+        valEls[i].textContent = to[i] > 0 ? Math.round(v) : '';
+        valEls[i].setAttribute('opacity', to[i] > 0 ? Math.min(t * 2, 1) : 0);
+      });
+
+      if (t < 1) requestAnimationFrame(step);
+      else { currentVals = [...to]; animating = false; }
+    }
+    requestAnimationFrame(step);
+  }
+
+  window.updateChart = function(data) {
+    if (!chartBuilt) buildChart();
+    const from = [...currentVals];
+    targetVals = DAYS.map(d => data[d] || 0);
+    animateTo(from, targetVals);
+  };
+
+  document.addEventListener('DOMContentLoaded', () => { buildChart(); });
+</script>
+
+</body>
+</html>
